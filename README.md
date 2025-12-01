@@ -2,7 +2,6 @@
 
 Analyze real-estate prices in Riyadh and uncover the factors influencing market trends
 
-------------------------------------------------------------------------
 
 ## Project Overview
 
@@ -16,7 +15,6 @@ values.
 Live Dashboard:
 https://riyadh-real-estate-em3rh73qtvwnwvyn225sn4.streamlit.app/
 
-------------------------------------------------------------------------
 
 ## Repository Structure
 
@@ -28,7 +26,6 @@ clean_data.csv
 requirements.txt
 README.md
 
-------------------------------------------------------------------------
 
 ## Objectives
 
@@ -37,7 +34,6 @@ README.md
 -   Identify features most influential to property prices
 -   Build an interactive dashboard for market exploration
 
-------------------------------------------------------------------------
 
 ## Data Cleaning & Preparation
 
@@ -47,7 +43,6 @@ README.md
 -   Engineering features such as Price_per_m2
 -   Exporting cleaned dataset for dashboard
 
-------------------------------------------------------------------------
 
 ## Exploratory Data Analysis
 
@@ -57,7 +52,6 @@ Includes:
 - Property characteristics vs. price
 - Heatmaps, bar charts, scatterplots
 
-------------------------------------------------------------------------
 
 ## Key Insights
 
@@ -66,14 +60,12 @@ Includes:
 -   High variation in price per m² among districts
 -   Some non-linear relationships observed
 
-------------------------------------------------------------------------
 
 ## Tech Stack
 
 Python, pandas, numpy, matplotlib, seaborn, scikit-learn, streamlit,
 Jupyter
 
-------------------------------------------------------------------------
 
 ## How to Run
 
@@ -83,7 +75,6 @@ Install: pip install -r requirements.txt
 
 Run: streamlit run app.py
 
-------------------------------------------------------------------------
 
 ## Dashboard Features
 
@@ -92,7 +83,6 @@ Run: streamlit run app.py
 -   Compare property types
 -   Explore distributions & correlations
 
-------------------------------------------------------------------------
 
 ## Dataset
 
@@ -100,7 +90,6 @@ Includes: price, area, neighborhood, property type, bedrooms, bathrooms,
 and more.
 Clean version: clean_data.csv
 
-------------------------------------------------------------------------
 
 ## Future Enhancements
 
@@ -109,16 +98,11 @@ Clean version: clean_data.csv
 -   Map-based visualization
 -   Enhanced UI/UX
 
-------------------------------------------------------------------------
 
 ## Author
 
 Nujud Almaleki
 GitHub: https://github.com/Nujud123
 
-------------------------------------------------------------------------
 
 Support
-
-If helpful, please star the repository ⭐
-
