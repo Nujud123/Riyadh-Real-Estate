@@ -87,7 +87,7 @@ streamlit run app.py
 The dataset includes features such as:
 price, area, district, property type, bedrooms, bathrooms, and more.
 
-Clean version used by the app: clean_data.csv
+Clean version used by the app: `clean_data.csv`
 
 ## Future Enhancements
 
