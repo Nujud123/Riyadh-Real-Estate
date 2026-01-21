@@ -1,8 +1,19 @@
 import streamlit as st
 import pandas as pd
+from PIL import Image
+import base64
+from pathlib import Path
+import textwrap
+
+def img_to_base64(path: str) -> str:
+    p = Path(path)
+    if not p.exists():
+        return ""
+    data = p.read_bytes()
+    return base64.b64encode(data).decode("utf-8")
 
 # -------------------------------------------------------
-# Page Config
+# Page Configuration
 # -------------------------------------------------------
 st.set_page_config(
     page_title="Riyadh Real Estate Dashboard",
@@ -10,12 +21,189 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------
+# Fixed Theme + RTL
+# -------------------------------------------------------
+def apply_fixed_theme():
+    st.markdown("""
+        <style>
+
+        /* ===== GLOBAL TEXT STYLE ===== */
+        html, body, [class*="css"]  {
+            text-align: right;
+            font-family: "Tahoma", "Arial", sans-serif;
+        }
+
+        /* ===== APP BACKGROUND ===== */
+        .stApp {
+           background: #345f7a;
+            color: #ffffff !important;
+        }
+        
+        /* Push logo upward in sidebar */
+        [data-testid="stSidebar"] img {
+            margin-top: -40px !important;
+        }
+
+        /* ===== SIDEBAR ===== */
+        section[data-testid="stSidebar"] {
+            background: #213852 !important;  
+        }
+
+        section[data-testid="stSidebar"] * {
+            color: #ffffff !important;
+        }
+
+        /* ===== TITLES ===== */
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff !important;       
+            text-align: right;
+        }
+
+        /* ===== DATAFRAME ===== */
+        .stDataFrame {
+            background-color: #1b2f3f !important;   
+            border-radius: 12px;
+        }
+                
+        .stDataFrame table {
+            direction: rtl;
+        }
+
+        .stDataFrame table th,
+        .stDataFrame table td {
+            text-align: right !important;
+            color: #ffffff !important;
+            background-color: #1b2f3f !important;
+        }
+
+        /* ===== PROPERTY CARD ===== */
+        .property-card {
+            background-color: #ffffff;
+            padding: 18px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(30, 131, 227, 0.25);
+            margin-bottom: 20px;
+            color: #213852;
+            border: 2px solid #1e83e3;
+            height: 230px;          
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .property-card h4 {
+            color: #213852;
+            font-weight: 700;
+            margin-bottom: 10px;     
+        }
+
+        .property-card p {
+            color: #213852;
+            margin: 0 0 6px 0;
+            font-size: 14px;    
+        }
+
+        /* ===== BADGE ===== */
+        .badge {
+            background: #56e5f7;     
+            color: #213852;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 10px;
+            width: auto !important;        
+            align-self: flex-start;
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .stSlider,
+        .stMultiSelect,
+        .stRadio {
+            text-align: right;
+        }
+
+        .card-icon{
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+        margin-bottom: 10px;
+        align-self: flex-end;
+        }
+
+        .stSelectbox {
+            text-align: right;
+        }
+
+        /* ===== METRICS (KPIs) ===== */
+        div[data-testid="stMetric"] {
+            direction: rtl !important;      
+            text-align: right !important;   
+        }
+
+        div[data-testid="stMetric"] > div {
+            display: flex;
+            flex-direction: column-reverse !important;  
+            align-items: flex-end;  
+        }
+
+        div[data-testid="stMetric"] label {
+            color: #56e5f7 !important;      
+            font-size: 16px;
+            margin-bottom: 4px;             
+        }
+
+        div[data-testid="stMetric"] div {
+            color: #ffffff !important;      
+            font-size: 32px;                
+            font-weight: 700;
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .stSlider {
+            text-align: right;  
+        }
+
+        /* Multiselect tags */
+        span[data-baseweb="tag"] {
+            background-color: #1e83e3 !important;
+            color: white !important;
+            border-radius: 12px !important;
+        }
+
+        /* Multiselect tag remove (×) */
+        span[data-baseweb="tag"] svg {
+            color: white !important;
+        }
+
+        /* Radio buttons */
+        .stRadio label div[role="radiogroup"] div {
+            accent-color: #56e5f7;
+        }
+
+        /* Selectbox border */
+        .stSelectbox div[data-baseweb="select"] {
+            border: 1px solid #56e5f7 !important;
+            background-color: #213852 !important;
+            color: white !important;
+        }
+
+        </style>
+    """, unsafe_allow_html=True)
+
+apply_fixed_theme()
+
+# -------------------------------------------------------
 # Load Data
 # -------------------------------------------------------
 @st.cache_data
 def load_data():
-    df = pd.read_csv("clean_data.csv")     # تأكدي من الاسم
-    df["Price_per_m2"] = df["Price"] / df["Area"]
+    df = pd.read_csv("clean_data.csv")
+
+    if "Price_per_m2" not in df.columns:
+        df["Price_per_m2"] = df["Price"] / df["Area"]
+
     return df
 
 df = load_data()
@@ -23,120 +211,251 @@ df = load_data()
 # -------------------------------------------------------
 # Sidebar - Filters
 # -------------------------------------------------------
-st.sidebar.title("Filters")
+logo = Image.open("assets/Logo of Riyadh Real Estate.png")
+st.sidebar.image(logo, width=220)
 
-st.sidebar.markdown("Use the filters below to explore Riyadh real estate data interactively.")
+st.sidebar.title("الفلاتر")
+st.sidebar.markdown("استخدم هذه الفلاتر للتحكم في البيانات المعروضة")
 
-# District filter
-districts = ["All"] + sorted(df["District"].dropna().unique().tolist())
-selected_district = st.sidebar.selectbox("Select District", districts)
+districts = ["الكل"] + sorted(df["District"].dropna().unique().tolist())
+selected_district = st.sidebar.selectbox("اختيار الحي", districts)
 
-# Property Type filter
-types = sorted(df["Property Type"].dropna().unique().tolist())
+property_types = sorted(df["Property Type"].dropna().unique().tolist())
 selected_types = st.sidebar.multiselect(
-    "Select Property Type(s)",
-    types,
-    default=types
+    "اختيار نوع العقار",
+    property_types,
+    default=property_types
 )
 
-# Price range
 min_price = int(df["Price"].min())
 max_price = int(df["Price"].max())
-price_range = st.sidebar.slider(
-    "Select Price Range",
-    min_price, max_price,
-    (min_price, max_price)
+
+price_min, price_max = st.sidebar.slider(
+    "نطاق السعر (ريال)",
+    min_value=min_price,
+    max_value=max_price,
+    value=(min_price, max_price)  # Range: (min, max)
 )
 
 # -------------------------------------------------------
 # Apply Filters
 # -------------------------------------------------------
-filtered = df.copy()
+filtered_df = df.copy()
 
-if selected_district != "All":
-    filtered = filtered[filtered["District"] == selected_district]
+if selected_district != "الكل":
+    filtered_df = filtered_df[filtered_df["District"] == selected_district]
 
-filtered = filtered[
-    (filtered["Property Type"].isin(selected_types)) &
-    (filtered["Price"].between(price_range[0], price_range[1]))
+filtered_df = filtered_df[
+    (filtered_df["Property Type"].isin(selected_types)) &
+    (filtered_df["Price"].between(price_min, price_max))
 ]
 
 # -------------------------------------------------------
 # Main Title
 # -------------------------------------------------------
-st.title("Riyadh Real Estate Dashboard")
+st.title("لوحة بيانات سوق العقار في مدينة الرياض")
 
-st.markdown(
-    """
-    This dashboard provides an interactive view of Riyadh real estate listings.  
-    Filter by district, property type, and price to explore patterns in housing data.
-    """
-)
-
-# -------------------------------------------------------
-# Data Preview
-# -------------------------------------------------------
-st.subheader("Filtered Data Preview")
-st.dataframe(filtered.head(50), height=300)
+st.markdown("""
+،هذه اللوحة تتيح لك استكشاف سوق العقار في الرياض  
+.مع توصيات ذكية لكل نوع عقار بناءً على تفضيل المستخدم
+""")
 
 # -------------------------------------------------------
 # Summary Metrics
 # -------------------------------------------------------
-st.subheader("Summary Statistics")
+st.subheader("مؤشرات عامة")
 
 col1, col2, col3 = st.columns(3)
 
-col1.metric("Total Properties", len(filtered))
-col2.metric("Average Price", f"{filtered['Price'].mean():,.0f} SAR" if len(filtered) else "0")
-col3.metric("Avg Price per m²", f"{filtered['Price_per_m2'].mean():,.0f} SAR" if len(filtered) else "0")
+total_props = len(filtered_df)
+avg_price = filtered_df["Price"].mean() if total_props > 0 else 0
+avg_m2 = filtered_df["Price_per_m2"].mean() if total_props > 0 else 0
+
+col1.metric("عدد العقارات", total_props)
+col2.metric("متوسط السعر (ريال)", f"{avg_price:,.0f}")
+col3.metric("متوسط سعر المتر(ريال)", f"{avg_m2:,.0f}")
 
 # -------------------------------------------------------
-# Visualization 1 — Avg price per district
+# Charts
 # -------------------------------------------------------
-st.subheader("Average Price by District")
+st.subheader("متوسط السعر حسب الحي (أعلى 15 حي)")
 
-if len(filtered) > 0:
+if len(filtered_df) > 0:
     avg_price_district = (
-        filtered.groupby("District")["Price"]
+        filtered_df.groupby("District")["Price"]
         .mean()
         .sort_values(ascending=False)
         .head(15)
     )
-
     st.bar_chart(avg_price_district)
-else:
-    st.write("No data available for this selection.")
 
-# -------------------------------------------------------
-# Visualization 2 — Price vs Area
-# -------------------------------------------------------
-st.subheader("Price vs Area (Scatter Plot)")
+st.subheader("العلاقة بين المساحة والسعر")
+if len(filtered_df) > 0:
+    st.scatter_chart(filtered_df, x="Area", y="Price")
 
-if len(filtered) > 0:
-    st.scatter_chart(filtered, x="Area", y="Price")
-else:
-    st.write("No data available.")
-
-# -------------------------------------------------------
-# Visualization 3 — Count of property types
-# -------------------------------------------------------
-st.subheader("Property Type Distribution")
-
-if len(filtered) > 0:
-    type_counts = filtered["Property Type"].value_counts()
+st.subheader("توزيع أنواع العقارات")
+if len(filtered_df) > 0:
+    type_counts = filtered_df["Property Type"].value_counts()
     st.bar_chart(type_counts)
-else:
-    st.write("No data available.")
 
 # -------------------------------------------------------
-# Simple Insight
+# Recommendations Section — Dropdown + Cards
+# -------------------------------------------------------
+icon_map = {
+    "ارض": "assets/land.png",
+    "ارض سكنية": "assets/res. land.png",
+    "شقة": "assets/apartment.png",
+    "عمارة": "assets/building.png",
+    "عمارة سكنية": "assets/res. building.png",
+    "دور": "assets/floor.png",
+    "استراحة": "assets/rest house.png",
+    "فيلا": "assets/villa.png",
+}
+
+st.markdown("---")
+st.subheader("التوصيات الذكية لكل نوع عقار")
+
+col_empty, col_filter = st.columns([2, 1])  
+with col_filter:
+    st.markdown("#### كيف تفضل أسعار العقارات؟")
+    method_label = st.selectbox(
+        "",
+        [
+            "أسعار تنافسية غير مكلفة",
+            "متوسط أسعار السوق",
+            "فاخرة مرتفعة السعر",
+            "لا يوجد تفضيل"
+        ],
+        index=0,
+        label_visibility="collapsed"
+    )
+
+if method_label.startswith("أسعار"):
+    recommendation_method = "best"
+elif method_label.startswith("متوسط"):
+    recommendation_method = "rep"
+elif method_label.startswith("فاخرة"):
+    recommendation_method = "high"
+else:
+    recommendation_method = "random"
+
+if len(filtered_df) == 0:
+    st.info("لا توجد بيانات مطابقة للفلاتر الحالية")
+else:
+    rec_source = filtered_df.copy()
+    recommendations = []
+
+    for p_type, group in rec_source.groupby("Property Type"):
+        if len(group) == 0:
+            continue
+
+        if len(group) >= 10:
+            q1 = group["Area"].quantile(0.25)
+            q3 = group["Area"].quantile(0.75)
+            group = group[(group["Area"] >= q1) & (group["Area"] <= q3)]
+            if len(group) == 0:
+                continue
+
+        if recommendation_method == "best":
+            idx = group["Price_per_m2"].idxmin()
+            chosen = group.loc[idx]
+
+        elif recommendation_method == "rep":
+            target = group["Price_per_m2"].mean()
+            idx = (group["Price_per_m2"] - target).abs().idxmin()
+            chosen = group.loc[idx]
+
+        elif recommendation_method == "high":
+            idx = group["Price_per_m2"].idxmax()
+            chosen = group.loc[idx]
+
+        else:  # random
+            chosen = group.sample(1).iloc[0]
+
+        recommendations.append(chosen)
+
+    rec_df = pd.DataFrame(recommendations)
+    rec_df = rec_df.rename(columns={"Property Type": "Property_Type"})
+
+    if recommendation_method == "best":
+        badge_label = "سعر تنافسي"
+    elif recommendation_method == "rep":
+        badge_label = "يمثل السوق"
+    elif recommendation_method == "high":
+        badge_label = "عقار فاخر"
+    else:
+        badge_label = "خيار عشوائي"
+
+    cards_per_row = 3
+    total_rows = (len(rec_df) + cards_per_row - 1) // cards_per_row
+
+    for r in range(total_rows):
+        row_slice = rec_df.iloc[r*cards_per_row:(r+1)*cards_per_row]
+        cols = st.columns(3)
+
+        start_index = 3 - len(row_slice)   
+
+        for i in range(len(row_slice)):
+            rec = row_slice.iloc[i]
+            with cols[start_index + i]:
+                img_path = icon_map.get(rec.Property_Type, "assets/building.png")
+
+                ptype = str(rec.Property_Type).strip()
+                img_path = icon_map.get(ptype, "assets/building.png")
+                b64 = img_to_base64(img_path)
+
+                img_html = ""
+                if b64:
+                    img_html = f'<img src="data:image/png;base64,{b64}" class="card-icon" />'
+
+                card_html = textwrap.dedent(f"""
+                <div class="property-card">
+                {img_html}
+                <p><b>نوع العقار:</b> {rec.Property_Type}</p>
+                <p><b>الحي:</b> {rec.District}</p>
+                <p><b>المساحة:</b> {rec.Area:.0f} م²</p>
+                <p><b>السعر:</b> {rec.Price:,.0f} ريال</p>
+                <p><b>سعر المتر:</b> {rec.Price_per_m2:,.0f} ريال</p>
+                
+                </div>
+                """)
+
+                st.markdown(card_html, unsafe_allow_html=True)
+
+# -------------------------------------------------------
+# Data Preview
+# -------------------------------------------------------
+st.subheader("معاينة البيانات")
+st.markdown("""
+<style>
+.rtl-table {
+    direction: rtl;
+    text-align: right;
+}
+</style>
+""", unsafe_allow_html=True)
+
+#filtered_df = filtered_df.iloc[:, ::-1] 
+table_df = filtered_df.drop(columns=["Property_ID",'City'], errors="ignore")
+cols = list(table_df.columns)
+
+if "Price" in cols and "Area" in cols and "Price_per_m2" in cols:
+    cols.remove("Price_per_m2")
+    area_index = cols.index("Area")
+    cols.insert(area_index, "Price_per_m2")
+
+table_df = table_df[cols]
+
+st.dataframe(table_df.head(30), use_container_width=True)
+
+# -------------------------------------------------------
+# Final Notes
 # -------------------------------------------------------
 st.markdown("---")
-st.markdown(
-    """
-    **Quick Insights:**  
-    • Districts with higher average prices reflect premium areas.  
-    • Larger areas tend to have higher prices, but price per m² reveals true value.  
-    • Property type affects price distribution across Riyadh.
-    """
-)
+st.markdown("""
+**ملاحظات تحليلية:**  
+ التوصيات تتحدّث تلقائيًا مع أي تغيير في الفلاتر أو البيانات.  
+ "أفضل قيمة" تعتمد على أقل سعر للمتر المربع.  
+ "يمثل السوق" تعتمد على عقار قريب من متوسط سعر المتر.  
+ "الاختيار العشوائي" لعرض عينة متنوعة بدون تحيز.
+""")

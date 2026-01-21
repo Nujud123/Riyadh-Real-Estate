@@ -13,14 +13,11 @@ patterns, neighborhood trends, and key factors affecting property
 values.
 
 Live Dashboard:
-https://riyadh-real-estate-em3rh73qtvwnwvyn225sn4.streamlit.app/
+
 
 
 ## Repository Structure
 
-Nujud_DataScience_Project.ipynb
-Nujud_DataScience_Project_Presentation.pdf
-Nujud_DataScience_Project_Report.pdf
 app.py
 clean_data.csv
 requirements.txt
@@ -71,6 +68,10 @@ Jupyter
 
 Clone: git clone https://github.com/Nujud123/Riyadh-Real-Estate.git
 
+Virtual Environment: 
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1    
+
 Install: pip install -r requirements.txt
 
 Run: streamlit run app.py
@@ -96,8 +97,6 @@ Clean version: clean_data.csv
 -   Add predictive models
 -   More dashboard filters
 -   Map-based visualization
--   Enhanced UI/UX
-
 
 ## Author
 
